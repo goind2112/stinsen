@@ -389,7 +389,8 @@ public extension NavigationCoordinatable {
                 presentationType: transition.type.type,
                 presentable: output,
                 keyPath: route.hashValue,
-                input: input
+                input: input,
+                screenName: transition.screenName
             )
         )
         output.parent = self
@@ -414,7 +415,8 @@ public extension NavigationCoordinatable {
                 presentationType: transition.type.type,
                 presentable: output,
                 keyPath: route.hashValue,
-                input: nil
+                input: nil,
+                screenName: transition.screenName
             )
         )
         output.parent = self
@@ -424,6 +426,7 @@ public extension NavigationCoordinatable {
     @discardableResult func route<Input, Output: View>(
         to route: KeyPath<Self, Transition<Self, Presentation, Input, Output>>,
         _ input: Input,
+        screenName: String,
         onDismiss: @escaping () -> ()
     ) -> Self {
         stack.dismissalAction[stack.value.count - 1] = onDismiss
@@ -439,9 +442,10 @@ public extension NavigationCoordinatable {
         self.stack.value.append(
             NavigationStackItem(
                 presentationType: transition.type.type,
-                presentable: output,
+                presentable: output as! ViewPresentable,
                 keyPath: route.hashValue,
-                input: input
+                input: input,
+                screenName: transition.screenName
             )
         )
         return self
@@ -460,12 +464,14 @@ public extension NavigationCoordinatable {
     ) -> Self {
         let transition = self[keyPath: route]
         let output = transition.closure(self)(())
+        
         self.stack.value.append(
             NavigationStackItem(
                 presentationType: transition.type.type,
-                presentable: output,
+                presentable: output as! ViewPresentable,
                 keyPath: route.hashValue,
-                input: nil
+                input: nil,
+                screenName: transition.screenName
             )
         )
         return self

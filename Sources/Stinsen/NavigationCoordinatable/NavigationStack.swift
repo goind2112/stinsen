@@ -27,14 +27,23 @@ public class NavigationStack<T: NavigationCoordinatable> {
     let initial: PartialKeyPath<T>
     let initialInput: Any?
     var root: NavigationRoot!
+    var currentScreenName: String?
     
-    @Published var value: [NavigationStackItem]
+    @Published var value: [NavigationStackItem] {
+        didSet {
+            currentScreenName = value.last?.screenName
+        }
+    }
     
     public init(initial: PartialKeyPath<T>, _ initialInput: Any? = nil) {
         self.value = []
         self.initial = initial
         self.initialInput = initialInput
         self.root = nil
+    }
+    
+    public func getCurrentScreenName() -> String? {
+        currentScreenName
     }
 }
 
@@ -71,4 +80,5 @@ struct NavigationStackItem {
     let presentable: ViewPresentable
     let keyPath: Int
     let input: Any?
+    let screenName: String
 }

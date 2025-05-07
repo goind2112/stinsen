@@ -80,7 +80,7 @@ public extension NavigationRouter where T: NavigationCoordinatable {
     @discardableResult func route<Output: View>(
         to route: KeyPath<T, Transition<T, Presentation, Void, Output>>
     ) -> T {
-        coordinator.route(to: route)
+        return coordinator.route(to: route)
     }
     
     /**
