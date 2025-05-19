@@ -20,6 +20,9 @@ public class NavigationRoot: ObservableObject {
 
 /// Represents a stack of routes
 public class NavigationStack<T: NavigationCoordinatable> {
+    @Published public var currentScreenName: String?
+    @Published var value: [NavigationStackItem]
+    
     var dismissalAction: [Int: () -> Void] = [:]
     
     weak var parent: ChildDismissable?
@@ -27,23 +30,21 @@ public class NavigationStack<T: NavigationCoordinatable> {
     let initial: PartialKeyPath<T>
     let initialInput: Any?
     var root: NavigationRoot!
-    var currentScreenName: String?
     
-    @Published var value: [NavigationStackItem] {
-        didSet {
-            currentScreenName = value.last?.screenName
-        }
-    }
+    private var cancellables = Set<AnyCancellable>()
     
     public init(initial: PartialKeyPath<T>, _ initialInput: Any? = nil) {
         self.value = []
         self.initial = initial
         self.initialInput = initialInput
         self.root = nil
-    }
-    
-    public func getCurrentScreenName() -> String? {
-        currentScreenName
+        
+        $value
+            .debounce(for: .milliseconds(100), scheduler: RunLoop.main)
+            .map { $0.last?.screenName }
+            .removeDuplicates()
+            .assign(to: \.currentScreenName, on: self)
+            .store(in: &cancellables)
     }
 }
 
